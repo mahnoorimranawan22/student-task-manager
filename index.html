@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StudyFlow — Student Task Manager</title>
+    <meta name="description"
+        content="A minimal, elegant student task manager with sage and cream design. Organize homework, assignments, and study goals." />
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><text y='52' font-size='56'>📋</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <div class="container header-inner">
+            <div class="brand">
+                <span class="brand-mark" aria-hidden="true">📋</span>
+                <div class="brand-text">
+                    <span class="brand-name">StudyFlow</span>
+                    <span class="brand-sub">Task Manager</span>
+                </div>
+            </div>
+            <button id="darkModeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+                <span class="toggle-track">
+                    <span class="toggle-thumb"></span>
+                </span>
+                <span class="toggle-label" id="themeLabel">Light</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ===== STATS ROW ===== -->
+    <div class="container">
+        <section class="stats-row" aria-label="Task statistics">
+            <div class="stat-chip">
+                <span class="stat-num" id="totalCount">0</span>
+                <span class="stat-name">Total</span>
+            </div>
+            <div class="stat-divider" aria-hidden="true"></div>
+            <div class="stat-chip">
+                <span class="stat-num accent" id="completedCount">0</span>
+                <span class="stat-name">Done</span>
+            </div>
+            <div class="stat-divider" aria-hidden="true"></div>
+            <div class="stat-chip">
+                <span class="stat-num warm" id="pendingCount">0</span>
+                <span class="stat-name">Pending</span>
+            </div>
+            <div class="stat-divider" aria-hidden="true"></div>
+            <div class="stat-chip">
+                <span class="stat-num danger" id="overdueCountHeader">0</span>
+                <span class="stat-name">Overdue</span>
+            </div>
+        </section>
+    </div>
+
+    <!-- ===== PAGE NAV ===== -->
+    <div class="container">
+        <nav class="page-nav" aria-label="Page navigation">
+            <button class="page-tab active" id="tabDashboard" data-page="dashboard">Dashboard</button>
+            <button class="page-tab" id="tabTasks" data-page="tasks">Tasks</button>
+        </nav>
+    </div>
+
+    <!-- ===== DASHBOARD PAGE ===== -->
+    <section class="page dashboard-page" id="dashboardPage" aria-label="Dashboard">
+        <div class="container">
+            <div class="dash-grid">
+
+                <!-- Progress Card -->
+                <div class="card dash-card dash-progress-card">
+                    <h2 class="dash-card-title">Completion Rate</h2>
+                    <div class="ring-wrap">
+                        <svg class="ring-svg" viewBox="0 0 120 120" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="var(--accent)" />
+                                    <stop offset="100%" stop-color="var(--accent-dim)" />
+                                </linearGradient>
+                            </defs>
+                            <circle class="ring-track" cx="60" cy="60" r="50" />
+                            <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="50" />
+                        </svg>
+                        <div class="ring-center">
+                            <span class="ring-pct" id="ringPct">0%</span>
+                            <span class="ring-sub">complete</span>
+                        </div>
+                    </div>
+                    <dl class="progress-legend">
+                        <div class="leg-row">
+                            <dt><span class="leg-dot sage"></span>Completed</dt>
+                            <dd id="dashCompleted">0</dd>
+                        </div>
+                        <div class="leg-row">
+                            <dt><span class="leg-dot warm"></span>Pending</dt>
+                            <dd id="dashPending">0</dd>
+                        </div>
+                        <div class="leg-row">
+                            <dt><span class="leg-dot danger"></span>Overdue</dt>
+                            <dd id="dashOverdue">0</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <!-- Category Breakdown -->
+                <div class="card dash-card">
+                    <h2 class="dash-card-title">By Category</h2>
+                    <div class="bar-chart" id="catBars"></div>
+                </div>
+
+                <!-- Priority Breakdown -->
+                <div class="card dash-card">
+                    <h2 class="dash-card-title">By Priority</h2>
+                    <div class="bar-chart" id="prioBars"></div>
+                </div>
+
+                <!-- Upcoming -->
+                <div class="card dash-card dash-wide">
+                    <h2 class="dash-card-title">Due This Week</h2>
+                    <ul class="dash-list" id="upcomingList" aria-live="polite"></ul>
+                    <p class="dash-empty" id="upcomingEmpty" hidden>No tasks due in the next 7 days — you're ahead of
+                        schedule!</p>
+                </div>
+
+                <!-- Overdue -->
+                <div class="card dash-card dash-wide">
+                    <h2 class="dash-card-title">Overdue</h2>
+                    <ul class="dash-list" id="overdueList" aria-live="polite"></ul>
+                    <p class="dash-empty" id="overdueEmpty" hidden>No overdue tasks — great discipline!</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TASKS PAGE ===== -->
+    <main class="page tasks-page" id="tasksPage" aria-label="Task list">
+        <div class="container">
+
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="search-wrap">
+                    <svg class="search-ico" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.6" />
+                        <path d="M13 13l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                    </svg>
+                    <input type="search" id="searchInput" class="search-input" placeholder="Search tasks…"
+                        aria-label="Search tasks" />
+                </div>
+
+                <div class="toolbar-controls">
+                    <div class="filter-group" role="tablist" aria-label="Filter by status">
+                        <button class="ftab active" data-filter="all" role="tab" aria-selected="true">All</button>
+                        <button class="ftab" data-filter="pending" role="tab" aria-selected="false">Pending</button>
+                        <button class="ftab" data-filter="completed" role="tab" aria-selected="false">Done</button>
+                    </div>
+                    <select id="sortSelect" class="sort-sel" aria-label="Sort tasks">
+                        <option value="default">Order: Default</option>
+                        <option value="dueDate">Order: Due Date</option>
+                        <option value="priority">Order: Priority</option>
+                        <option value="name">Order: Name A–Z</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Category filter -->
+            <div class="cat-filter" role="group" aria-label="Filter by category">
+                <button class="cat-chip active" data-category="all">All</button>
+                <button class="cat-chip" data-category="Homework">Homework</button>
+                <button class="cat-chip" data-category="Assignment">Assignment</button>
+                <button class="cat-chip" data-category="Exam">Exam</button>
+                <button class="cat-chip" data-category="Personal">Personal</button>
+            </div>
+
+            <!-- Task list -->
+            <ul class="task-list" id="taskList" aria-label="Task list" aria-live="polite"></ul>
+
+            <!-- Empty state -->
+            <div class="empty-state" id="emptyState" hidden>
+                <p class="empty-icon">📝</p>
+                <h2>No tasks found</h2>
+                <p>Use the + button to add your first task.</p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ===== ADD BUTTON ===== -->
+    <button class="add-btn" id="openAddModal" aria-label="Add new task">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="22" height="22">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        Add Task
+    </button>
+
+    <!-- ===== ADD / EDIT MODAL ===== -->
+    <div class="overlay" id="taskModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
+        <div class="modal" id="taskModalBox">
+            <div class="modal-hdr">
+                <h2 id="modalTitle">New Task</h2>
+                <button class="close-btn" id="closeModal" aria-label="Close">
+                    <svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+                        <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8"
+                            stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+            <form id="taskForm" novalidate>
+                <div class="field">
+                    <label for="taskName">Task name <span class="req">*</span></label>
+                    <input type="text" id="taskName" class="input" placeholder="e.g. Read Chapter 5" required
+                        maxlength="120" autocomplete="off" />
+                    <span class="field-err" id="nameError">Please enter a task name.</span>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label for="taskCategory">Category</label>
+                        <select id="taskCategory" class="input">
+                            <option value="Homework">Homework</option>
+                            <option value="Assignment">Assignment</option>
+                            <option value="Exam">Exam</option>
+                            <option value="Personal">Personal</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="taskDueDate">Due date</label>
+                        <input type="date" id="taskDueDate" class="input" />
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Priority</label>
+                    <div class="prio-group" role="group" aria-label="Priority">
+                        <label class="prio-opt"><input type="radio" name="priority" value="low" /> Low</label>
+                        <label class="prio-opt"><input type="radio" name="priority" value="medium" checked />
+                            Medium</label>
+                        <label class="prio-opt"><input type="radio" name="priority" value="high" /> High</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="taskDesc">Notes</label>
+                    <textarea id="taskDesc" class="input" rows="2" placeholder="Optional notes…"
+                        maxlength="300"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" id="cancelModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveTaskBtn">Add Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== DELETE CONFIRM MODAL ===== -->
+    <div class="overlay" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="delTitle" hidden>
+        <div class="modal modal-sm">
+            <div class="modal-hdr">
+                <h2 id="delTitle">Delete task?</h2>
+                <button class="close-btn" id="closeDeleteModal" aria-label="Close">
+                    <svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+                        <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8"
+                            stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+            <p class="del-msg">This cannot be undone.</p>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" id="cancelDelete">Cancel</button>
+                <button class="btn btn-danger" id="confirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
